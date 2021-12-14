@@ -44,7 +44,6 @@ class MirRestInterfacer:
         if get_status.status_code == 200:
             json_response = get_status.json()
             self.state_id = json_response.get('state_id')
-            self.
             # Check e-stop or manual control initiated
             if self.state_id == 10 or self.state_id == 11:
                 rospy.logwarn('Emergency stop/manual control engaged')
