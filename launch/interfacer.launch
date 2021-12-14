@@ -1,0 +1,8 @@
+<launch>
+  <arg name="mir_ip"                default="192.168.12.20" />
+
+  <!-- Launch MiR Interfacer -->
+  <node name="mir_rest_interfacer" pkg="mir_rest_interfacer" type="interfacer.py" output="screen" >
+    <param name="mir_ip"                value="$(arg mir_ip)" />
+  </node>
+</launch>
