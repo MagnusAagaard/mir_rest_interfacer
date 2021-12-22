@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import sys
 import rospy
-from std_msgs.msg import String
+from std_msgs.msg import String, Bool
 import datetime
 from time import sleep
 from random import randint
@@ -13,10 +13,12 @@ class MirRestInterfacer:
     def __init__(self):
         self.__init_headers()
         self.__init_params()
+        self.__init_publishers()
         # MiR state_id
         self.state_id = 0
         self.mission_group_guid = self.get_mission_group()
         self.missions_guid = self.get_missions()
+        self.update_time()
 
     def __init_headers(self):
         self.headers = {}
@@ -31,6 +33,9 @@ class MirRestInterfacer:
             rospy.logerr('Parameter \'mir_ip\' is not provided.')
             sys.exit(-1)
         self.host = 'http://' + self.ip + '/api/v2.0.0/'
+
+    def __init_publishers(self):
+        self.time_update_pub = rospy.Publisher('/time_update_done', Bool, queue_size=0)
 
     def run(self):
         self.get_status()
@@ -73,6 +78,8 @@ class MirRestInterfacer:
         rospy.loginfo(f'Updated time to {time}, sleeping for 10 sec. for MiR to configure itself with new time..')
         sleep(10)
         rospy.loginfo('Done sleeping!')
+        self.time_update_pub.publish(Bool(data=True))
+
 
     def clear_error(self):
         json_body = {'clear_error' : True}
