@@ -18,7 +18,7 @@ class MirRestInterfacer:
         self.state_id = 0
         self.mission_group_guid = self.get_mission_group()
         self.missions_guid = self.get_missions()
-        self.update_time()
+        #self.update_time()
 
     def __init_headers(self):
         self.headers = {}
