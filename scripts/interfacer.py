@@ -15,6 +15,7 @@ class MirRestInterfacer:
         self.__init_params()
         # MiR state_id
         self.state_id = 0
+        self.mission_group_guid = self.get_mission_group()
         self.missions_guid = self.get_missions()
 
     def __init_headers(self):
@@ -36,7 +37,7 @@ class MirRestInterfacer:
         # If we ready for new mission state_id = 3 -- when executing state_id = 5
         if self.state_id == 3:
             mission = self.missions_guid[randint(0,len(self.missions_guid)-1)]
-            #self.post_mission()
+            self.post_mission(mission)
             #log mission?
 
     def get_status(self):
@@ -78,14 +79,26 @@ class MirRestInterfacer:
         put_status = requests.put(self.host + 'status', json=json_body, headers=self.headers)
         if put_status.status_code == 200:
             rospy.loginfo('Succesfully cleared error')
-            if self.gui_param:
-                self.UI.BtnResetErrors.setEnabled(False)
         else:
             rospy.loginfo('ERROR: {}. Could not complete PUT request for clearing error')
 
+    def get_mission_group(self):
+        mission_group = ''
+        get_group = requests.get(self.host + 'mission_groups', headers=self.headers)
+        if get_group.status_code == 200:
+            json_response = get_group.json()
+            for group in json_response:
+                if group.get('name') == 'DIREC':
+                    mission_group = group.get('guid')
+        else:
+            rospy.logerr('Could not get mission group for name \'\'.. Exiting')
+            rospy.signal_shutdown()
+        return mission_group
+
     def get_missions(self):
         missions_guid = []
-        get_missions = requests.get(self.host + 'mission_groups/4dc2d790-5cfa-11ec-8945-94c691a122d0/missions', headers=self.headers)
+        get_missions = requests.get(self.host + f'mission_groups/{self.mission_group_guid}/missions', headers=self.headers)
+        
         if get_missions.status_code == 200:
             missions = get_missions.json()
             for mission in missions:
